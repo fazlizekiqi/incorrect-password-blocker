@@ -1,0 +1,69 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+def final JAVA_VERSION = 17;
+def final MAIN_CLASS = 'se.seb.incorrectpasswordblocker.App';
+
+dependencies {
+
+    implementation 'com.google.guava:guava:30.1.1-jre'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    testImplementation 'org.assertj:assertj-core:3.23.1'
+    testImplementation "org.mockito:mockito-core:3.+"
+
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = MAIN_CLASS
+}
+
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': MAIN_CLASS,
+        )
+    }
+    // Collect all the jars that this project is depending upon.
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
+    }
+}
+
+run {
+    standardInput = System.in
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.withType(Test) {
+    testLogging {
+        testLogging.events.add(TestLogEvent.PASSED)
+        testLogging.events.add(TestLogEvent.FAILED)
+        testLogging.events.add(TestLogEvent.SKIPPED)
+        testLogging.exceptionFormat(TestExceptionFormat.FULL)
+        testLogging.showCauses(true)
+        testLogging.showExceptions(true)
+        testLogging.showStackTraces(true)
+    }
+}

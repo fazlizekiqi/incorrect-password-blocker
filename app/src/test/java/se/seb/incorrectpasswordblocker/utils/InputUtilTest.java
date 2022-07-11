@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class InputUtilTest {
 
   @Test
-  @DisplayName("It should read line")
+  @DisplayName("Should read line")
   void getUserCredentials() {
     final String apple = "apple";
     InputUtil inputUtil = new InputUtil(new BufferedReader(new  StringReader(apple)));

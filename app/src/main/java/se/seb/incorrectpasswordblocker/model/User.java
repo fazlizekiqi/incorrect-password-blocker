@@ -1,10 +1,10 @@
 package se.seb.incorrectpasswordblocker.model;
 
+import static se.seb.incorrectpasswordblocker.utils.Constants.MAXIMUM_LOG_IN_ATTEMPTS;
+
 import java.time.Instant;
 
 public class User {
-
-  private final static Integer MAXIMUM_LOG_IN_ATTEMPTS = 5;
 
   private String username;
   private String password;
@@ -54,7 +54,7 @@ public class User {
     return logInAttempts;
   }
 
-  public void increaseLoginAttempts() {
+  public void increaseLoginAttemptCount() {
     ++this.logInAttempts;
 
     if (this.logInAttempts == MAXIMUM_LOG_IN_ATTEMPTS) {
@@ -62,7 +62,7 @@ public class User {
     }
   }
 
-  public void resetLoginAttempts(){
+  public void resetLoginAttemptCount(){
     this.logInAttempts = 0;
   }
 

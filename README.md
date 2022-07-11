@@ -1,10 +1,18 @@
 ## Incorrect Password Blocker
 
+When running the application 2 user are created.
 
-####Tools used: 
+    | Users         | Username      | Password  |
+    | ------------- |:-------------:| -------:  |
+    | Admin         | admin         | admin     |
+    | Test          | test          | test      |
+
+
+####Tools/Frameworks used: 
   * [Java Corretto 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/downloads-list.html) 
   * [Gradle 7.4.2](https://gradle.org/install/#with-a-package-manager)
-  * [AssertJ](http://joel-costigliola.github.io/assertj/)    
+  * [AssertJ](http://joel-costigliola.github.io/assertj/)
+  * [Mockito](https://site.mockito.org/)
   
 
 #### To run the application:

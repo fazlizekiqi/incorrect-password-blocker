@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'jacoco'
 }
 
 repositories {
@@ -15,7 +16,6 @@ def final JAVA_VERSION = 17;
 def final MAIN_CLASS = 'se.seb.incorrectpasswordblocker.App';
 
 dependencies {
-
     implementation 'com.google.guava:guava:30.1.1-jre'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
@@ -28,7 +28,6 @@ application {
     // Define the main class for the application.
     mainClass = MAIN_CLASS
 }
-
 
 jar {
     manifest {
@@ -55,6 +54,28 @@ run {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+}
+
+jacocoTestCoverageVerification {
+    def coverageLimit = 0.75;
+    violationRules {
+        failOnViolation = true
+        rule {
+            limit {
+                minimum = coverageLimit
+            }
+        }
+    }
+}
+
+check.finalizedBy(jacocoTestCoverageVerification)
 
 tasks.withType(Test) {
     testLogging {

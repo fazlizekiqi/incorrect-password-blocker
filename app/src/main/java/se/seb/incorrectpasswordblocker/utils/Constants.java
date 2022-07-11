@@ -2,8 +2,10 @@ package se.seb.incorrectpasswordblocker.utils;
 
 public class Constants {
 
+  public final static Integer MAXIMUM_LOG_IN_ATTEMPTS = 5;
+
   public final static int MINUTE_IN_SECONDS = 60;
-  public final static int FIVE_MINUTES = MINUTE_IN_SECONDS * 5;
+  public final static int FIVE_MINUTES_IN_SECONDS = MINUTE_IN_SECONDS * 5;
 
   public final static String CREDENTIALS_CANNOT_BE_NULL_MESSAGE  = "User credentials cannot be null.";
   public final static String USERNAME_NOT_FOUND_MESSAGE  = "Username [%s] is not found.";
@@ -16,5 +18,8 @@ public class Constants {
   public final static String ERROR_READING_LINE = "Error reading a line.";
   public final static String ERROR_CLOSING_BUFFERED_READER = "Error closing buffered reader!";
   public final static String BUFFERED_READER_IS_REQUIRED = "Buffered reader is required";
+
+  public final static String WELCOME_TO_APPLICATION_MESSAGE = "WELCOME TO APPLICATION.";
+  public final static String RUN_APPLICATION_AGAIN_QUESTION= "Do you want to run the application again! [y/n]:";
 
 }

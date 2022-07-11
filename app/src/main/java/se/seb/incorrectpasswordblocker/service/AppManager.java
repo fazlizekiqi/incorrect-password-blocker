@@ -2,7 +2,7 @@ package se.seb.incorrectpasswordblocker.service;
 
 import static se.seb.incorrectpasswordblocker.utils.Constants.ACCOUNT_IS_LOCKED_MESSAGE;
 import static se.seb.incorrectpasswordblocker.utils.Constants.CREDENTIALS_CANNOT_BE_NULL_MESSAGE;
-import static se.seb.incorrectpasswordblocker.utils.Constants.FIVE_MINUTES;
+import static se.seb.incorrectpasswordblocker.utils.Constants.FIVE_MINUTES_IN_SECONDS;
 import static se.seb.incorrectpasswordblocker.utils.Constants.GET_PASSWORD_MESSAGE;
 import static se.seb.incorrectpasswordblocker.utils.Constants.GET_USERNAME_MESSAGE;
 import static se.seb.incorrectpasswordblocker.utils.Constants.MINUTE_IN_SECONDS;
@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import se.seb.incorrectpasswordblocker.db.DatabaseSimulator;
-import se.seb.incorrectpasswordblocker.exceptions.AccountBlockedException;
+import se.seb.incorrectpasswordblocker.exceptions.AccountLockedException;
 import se.seb.incorrectpasswordblocker.exceptions.UserNotFoundException;
 import se.seb.incorrectpasswordblocker.exceptions.WrongCredentialsException;
 import se.seb.incorrectpasswordblocker.model.User;
@@ -42,7 +42,7 @@ public class AppManager {
   }
 
   public void authenticate(UserCredentials userCredentials)
-    throws UserNotFoundException, AccountBlockedException, WrongCredentialsException {
+    throws UserNotFoundException, AccountLockedException, WrongCredentialsException {
 
     UserCredentials credentials = Objects.requireNonNull(userCredentials, CREDENTIALS_CANNOT_BE_NULL_MESSAGE);
 
@@ -55,9 +55,9 @@ public class AppManager {
 
       if (user.isAccountLocked()) {
 
-        boolean lessThenFiveMinutesHaveGone = checkIfLessThenFiveMinutesHasGone(lastLoginAttempt);
+        boolean lessThenFiveMinutesHaveGone = hasLessThanFiveMinutesGoneSinceLastLoginAttempt(lastLoginAttempt);
         if (lessThenFiveMinutesHaveGone) {
-          throw new AccountBlockedException(ACCOUNT_IS_LOCKED_MESSAGE);
+          throw new AccountLockedException(ACCOUNT_IS_LOCKED_MESSAGE);
         }
 
         resetTheUserState(user);
@@ -66,53 +66,54 @@ public class AppManager {
 
     verifyPasswords(credentials, user);
 
-    // User is authenticated
+    // User is authenticated -> something can be returned either a boolean or an Authenticate object.
     resetTheUserState(user);
   }
 
   private void verifyPasswords(UserCredentials credentials, User user) throws WrongCredentialsException {
+
     boolean isWrongPassword = !Objects.equals(user.getPassword(), credentials.password());
     if (isWrongPassword) {
 
-      boolean isFirstAttempt = checkIfFirstLoginAttempt(user);
+      boolean isFirstAttempt = checkForFirstLoginAttempt(user);
       if (isFirstAttempt) {
         user.setFirstLoginAttemptDate(Instant.now());
       }
 
-      boolean moreThanOneMinuteHasGone = checkIfOneMinuteHasGone(user);
+      boolean moreThanOneMinuteHasGone = hasMoreThanMinuteGoneSinceFirstAttempt(user);
       if (moreThanOneMinuteHasGone) {
         user.setFirstLoginAttemptDate(Instant.now());
-        user.resetLoginAttempts();
+        user.resetLoginAttemptCount();
       }
 
-      user.increaseLoginAttempts();
+      user.increaseLoginAttemptCount();
       user.setLastLoginAttempt(Instant.now());
       throw new WrongCredentialsException(WRONG_CREDENTIALS_MESSAGE);
 
     }
   }
 
-  private boolean checkIfLessThenFiveMinutesHasGone(Instant lastLoginAttempt) {
+  private boolean hasLessThanFiveMinutesGoneSinceLastLoginAttempt(Instant lastLoginAttempt) {
     long minutesSinceLastAttempt = lastLoginAttempt.until(Instant.now(), ChronoUnit.SECONDS);
-    boolean isLessThenFiveMinutes = minutesSinceLastAttempt < FIVE_MINUTES;
-    return isLessThenFiveMinutes;
+
+    return minutesSinceLastAttempt < FIVE_MINUTES_IN_SECONDS;
   }
 
-  private boolean checkIfOneMinuteHasGone(User user) {
+  private boolean hasMoreThanMinuteGoneSinceFirstAttempt(User user) {
     Instant firstLoginAttemptDate = user.getFirstLoginAttemptDate();
     long passedSeconds = firstLoginAttemptDate.until(Instant.now(), ChronoUnit.SECONDS);
-    boolean moreThan60SecondsHasGone = passedSeconds > MINUTE_IN_SECONDS;
-    return moreThan60SecondsHasGone;
+
+    return passedSeconds > MINUTE_IN_SECONDS;
   }
 
-  private boolean checkIfFirstLoginAttempt(User user) {
+  private boolean checkForFirstLoginAttempt(User user) {
     return user.getFirstLoginAttemptDate() == null;
   }
 
   private void resetTheUserState(User user) {
     user.setFirstLoginAttemptDate(null);
     user.setLastLoginAttempt(null);
-    user.resetLoginAttempts();
+    user.resetLoginAttemptCount();
     user.unlockAccount();
   }
 

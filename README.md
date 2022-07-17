@@ -1,6 +1,6 @@
 ## Incorrect Password Blocker
 
-When running the application 2 user are created.
+When running the application 2 users are created.
 
     | Users         | Username      | Password  |
     | ------------- |:-------------:| -------:  |
@@ -8,7 +8,7 @@ When running the application 2 user are created.
     | Test          | test          | test      |
 
 
-####Tools/Frameworks used: 
+###Tools/Frameworks used: 
   * [Java Corretto 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/downloads-list.html) 
   * [Gradle 7.4.2](https://gradle.org/install/#with-a-package-manager)
   * [AssertJ](http://joel-costigliola.github.io/assertj/)
